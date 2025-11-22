@@ -1,0 +1,40 @@
+# python4_core.py
+# Core of Python 4 with activation mode
+
+import re
+
+class Compiler:
+    _active = False   # global flag
+
+    @classmethod
+    def activate(cls):
+        """Activate auto-correction mode globally."""
+        cls._active = True
+
+    @classmethod
+    def deactivate(cls):
+        """Deactivate auto-correction mode."""
+        cls._active = False
+
+    @staticmethod
+    def auto_correct(source: str) -> str:
+        corrections = {
+            "pritn": "print",
+            "funciton": "function",
+            "retunr": "return",
+        }
+        for wrong, right in corrections.items():
+            source = source.replace(wrong, right)
+        # Add missing colon for simple if-statements
+        source = re.sub(r"(if .+)(\n|$)", r"\1:\2", source)
+        return source
+
+    @classmethod
+    def run(cls, source: str):
+        """Run code with optional auto-correction depending on activation state."""
+        if cls._active:
+            source = cls.auto_correct(source)
+        try:
+            exec(source, globals())
+        except Exception as e:
+            print(f"[Python4 Error] {e}")
